@@ -1,7 +1,7 @@
 import os, streamlit as st
 
-# Specify your OpenAI API key here (local testing only, not in production!)
-os.environ['OPENAI_API_KEY']= ""
+# Uncomment to specify your OpenAI API key here (local testing only, not in production!), or add corresponding environment variable (recommended)
+# os.environ['OPENAI_API_KEY']= ""
 
 from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader, LLMPredictor, PromptHelper
 from langchain import OpenAI
