@@ -1,2 +1,2 @@
-streamlit==1.21.0
+streamlit==1.22.0
 llama-index==0.4.33
