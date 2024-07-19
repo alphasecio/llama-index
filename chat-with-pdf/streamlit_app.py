@@ -3,7 +3,7 @@ from llama_index.core import VectorStoreIndex
 from llama_parse import LlamaParse
 
 # Streamlit app config
-st.subheader("Ask Llama")
+st.subheader("Chat with PDF")
 with st.sidebar:
     openai_api_key = st.text_input("OpenAI API key", type="password")
     llama_cloud_api_key = st.text_input("LlamaCloud API key", type="password")
