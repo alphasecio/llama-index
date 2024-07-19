@@ -1,4 +1,4 @@
-# llama-index
+# chat-with-pdf
 A Streamlit app for chatting with PDFs using [LlamaIndex](https://www.llamaindex.ai/) and [LlamaParse](https://docs.cloud.llamaindex.ai/llamaparse/getting_started). You'll need API keys from [OpenAI](https://platform.openai.com/api-keys) and [LlamaCloud](https://cloud.llamaindex.ai/api-key) for this project.
 
 ![llama-parse](./llama-parse.png)
