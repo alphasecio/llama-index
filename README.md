@@ -22,7 +22,7 @@ This repository contains a collection of apps powered by LlamaIndex.
 [LlamaIndex](https://www.llamaindex.ai) is an open-source project that provides a simple interface between LLMs and external data sources like APIs, PDFs, SQL etc. It provides indices over structured and unstructured data, helping to abstract away the differences across data sources. 
 
 ### [chat-with-pdf](https://github.com/alphasecio/llama-index/blob/main/chat-with-pdf)
-A Streamlit web application for chatting with PDFs using LlamaIndex and LlamaParse.
+A sample Streamlit web application for chatting with PDFs using LlamaIndex and LlamaParse.
 
 ### [summarize-url](https://github.com/alphasecio/llama-index/blob/main/summarize-url)
-A sample Streamlit web application to summarize URLs using LlamaIndex and OpenAI.
+A sample Streamlit web application for summarizing URLs using LlamaIndex and OpenAI.
