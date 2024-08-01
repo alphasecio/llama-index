@@ -1,4 +1,4 @@
-streamlit==1.36.0
+streamlit==1.37.0
 validators==0.33.0
 llama-index==0.10.55
 llama-index-core==0.10.55
