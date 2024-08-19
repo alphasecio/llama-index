@@ -1,5 +1,5 @@
 streamlit==1.36.0
-llama-index==0.10.55
+llama-index==0.10.65
 llama-index-core==0.10.55
 llama-index-readers-file==0.1.30
 llama-index-llms-openai==0.1.25
