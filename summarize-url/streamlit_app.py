@@ -3,7 +3,7 @@ from llama_index.core import SummaryIndex, Settings
 from llama_index.llms.openai import OpenAI
 from llama_index.readers.web import SimpleWebPageReader
 
-Settings.llm = OpenAI(temperature=0.2, model="gpt-3.5-turbo") # change model to gpt-4o-mini, when available
+Settings.llm = OpenAI(temperature=0.2, model="gpt-4o-mini")
 
 # Streamlit app config
 st.subheader("Summarize URL")
