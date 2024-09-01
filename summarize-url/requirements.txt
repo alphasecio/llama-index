@@ -1,6 +1,6 @@
 streamlit==1.37.1
 validators==0.33.0
-llama-index==0.10.65
+llama-index==0.11.3
 llama-index-core==0.10.67
 llama-index-llms-openai==0.1.29
 llama-index-readers-web==0.1.23
