@@ -1,7 +1,7 @@
 streamlit==1.37.1
 llama-index==0.10.65
 llama-index-core==0.10.67
-llama-index-readers-file==0.1.33
+llama-index-readers-file==0.2.0
 llama-index-llms-openai==0.1.29
 llama-index-embeddings-openai==0.1.11
 llama-parse==0.4.9
