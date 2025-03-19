@@ -1,5 +1,5 @@
 # summarize-url
-A sample Streamlit application to summarize URLs using [LlamaIndex](https://www.llamaindex.ai) and [OpenAI](https://openai.com). You'll need an [API key](https://platform.openai.com/api-keys) from OpenAI for this project.
+A sample Streamlit application to summarize URLs using [LlamaIndex](https://www.llamaindex.ai) and [Google Gemini](https://ai.google.dev/gemini-api/docs). You'll need an [API key](https://aistudio.google.com/app/apikey) from Google AI Studio for this project. Note that I've switched from OpenAI to Google Gemini in the current update.
 
 ![summarize-url](./summarize-url.png)
 
