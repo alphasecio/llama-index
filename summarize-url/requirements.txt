@@ -1,6 +1,6 @@
-streamlit==1.39.0
+streamlit==1.43.2
 validators==0.34.0
-llama-index==0.11.19
-llama-index-core==0.11.19
-llama-index-llms-openai==0.2.16
-llama-index-readers-web==0.2.4
+llama-index==0.12.25
+llama-index-core==0.12.25
+llama-index-llms-google-genai==0.1.4
+llama-index-readers-web==0.3.8
