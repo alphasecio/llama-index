@@ -25,4 +25,4 @@ This repository contains a collection of apps powered by LlamaIndex.
 A sample Streamlit web application for chatting with PDFs using LlamaIndex and LlamaParse.
 
 ### [summarize-url](https://github.com/alphasecio/llama-index/blob/main/summarize-url)
-A sample Streamlit web application for summarizing URLs using LlamaIndex and OpenAI.
+A sample Streamlit web application for summarizing URLs using LlamaIndex and Google Gemini.
