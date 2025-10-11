@@ -34,7 +34,7 @@ if summarize:
     else:
         try:
             with st.spinner("Fetching content and generating summary...", show_time=True):
-                Settings.llm = GoogleGenAI(model="gemini-2.0-flash", api_key=google_api_key)
+                Settings.llm = GoogleGenAI(model="gemini-2.5-flash", api_key=google_api_key)
                 documents = SimpleWebPageReader(html_to_text=True).load_data([url])
 
                 if not documents:
@@ -43,7 +43,7 @@ if summarize:
                     index = SummaryIndex.from_documents(documents)
                     query_engine = index.as_query_engine()
                     summary = query_engine.query("Summarize the article in 200-250 words.")
-                    st.success(summary)
+                    st.success(summary.response)
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
             with st.expander("Error Details"):
