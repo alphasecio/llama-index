@@ -1,7 +1,7 @@
-streamlit==1.50.0
-llama-index==0.14.4
-llama-index-core==0.14.4
-llama-index-readers-file==0.5.4
-llama-index-llms-openai==0.6.4
-llama-index-embeddings-openai==0.5.1
-llama-parse==0.6.73
+streamlit==1.56.0
+llama-index==0.14.21
+llama-index-core==0.14.21
+llama-index-readers-file==0.6.0
+llama-index-llms-openai==0.7.5
+llama-index-embeddings-openai==0.6.0
+llama-cloud-services==0.6.94
