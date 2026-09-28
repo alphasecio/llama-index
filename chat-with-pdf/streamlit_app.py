@@ -1,4 +1,3 @@
-import hashlib
 import logging
 import os
 
@@ -39,10 +38,6 @@ TOP_K = 5
 
 class NoContentError(Exception):
     """Raised when parsing returns no usable text."""
-
-
-def fingerprint(value: str) -> str:
-    return hashlib.sha256(value.encode()).hexdigest()
 
 
 def parse_pdf(data: bytes, name: str, api_key: str, tier: str) -> list[Document]:
@@ -158,9 +153,9 @@ else:
         st.error("The uploaded file does not look like a valid PDF.")
         st.stop()
 
-    # Parse once per document and tier; re-index only when the document or OpenAI key changes
+    # Parse once per document and tier; re-index only when the document, tier, or embedding model changes
     doc_key = (source_doc.file_id, tier)
-    index_key = (doc_key, fingerprint(openai_api_key), EMBED_MODEL)
+    index_key = (doc_key, EMBED_MODEL)
 
     if st.session_state.get("index_key") != index_key:
         with st.status("Preparing document...", expanded=False) as status:
