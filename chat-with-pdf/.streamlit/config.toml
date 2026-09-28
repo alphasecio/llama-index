@@ -1,0 +1,15 @@
+[server]
+headless = true
+maxUploadSize = 20
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = "type"
+toolbarMode = "minimal"
+
+[theme]
+primaryColor = "#7c3aed"
+baseRadius = "medium"
+showWidgetBorder = true
