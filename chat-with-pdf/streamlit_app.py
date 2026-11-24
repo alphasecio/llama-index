@@ -28,12 +28,13 @@ def env_int(name: str, default: int) -> int:
 
 # Defaults can be overridden with environment variables
 PARSE_TIERS = ["fast", "cost_effective", "agentic", "agentic_plus"]
-DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini").strip()
+DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-6-luna").strip()
 EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small").strip()
 DEFAULT_TIER = os.getenv("LLAMA_PARSE_TIER", "cost_effective").strip()
 MAX_PAGES = env_int("MAX_PAGES", 50)
 MAX_UPLOAD_MB = 20  # keep in sync with server.maxUploadSize in .streamlit/config.toml
 TOP_K = 5
+PARSE_TIMEOUT = 300  # seconds to wait for LlamaParse before giving up
 
 
 class NoContentError(Exception):
@@ -49,6 +50,7 @@ def parse_pdf(data: bytes, name: str, api_key: str, tier: str) -> list[Document]
             upload_file=(name, data, "application/pdf"),
             page_ranges={"max_pages": MAX_PAGES},
             expand=["markdown"],
+            timeout=PARSE_TIMEOUT,
         )
     pages = result.markdown.pages if result.markdown else []
     return [

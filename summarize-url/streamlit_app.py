@@ -2,14 +2,14 @@ import ipaddress
 import logging
 import os
 import socket
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
 
-import requests
+import html2text
+import httpx
 import streamlit as st
 from google.genai import errors as genai_errors
 from llama_index.core import Document, SummaryIndex
 from llama_index.llms.google_genai import GoogleGenAI
-from llama_index.readers.web import SimpleWebPageReader
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +23,12 @@ def env_int(name: str, default: int) -> int:
 
 
 # Defaults can be overridden with environment variables
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.7-flash").strip()
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
 MAX_CHARS = env_int("MAX_CHARS", 60000)
 FETCH_TIMEOUT = 20
+MAX_REDIRECTS = 5
+MAX_BYTES = 5_000_000
+USER_AGENT = "Mozilla/5.0 (compatible; summarize-url/1.0)"
 SUMMARY_PROMPT = "Summarize the article in 200-250 words."
 
 
@@ -33,38 +36,93 @@ class NoContentError(Exception):
     """Raised when the page has no readable text."""
 
 
-def check_public_url(url: str) -> str | None:
-    """Return an error message if the URL is not a public http(s) address, else None."""
+class UrlError(Exception):
+    """Raised when a URL is not a public http(s) address; the message is shown to the user."""
+
+
+class FetchError(Exception):
+    """Raised when the page could not be fetched; the message is shown to the user."""
+
+
+def resolve_public(url: str) -> tuple[str, str, int]:
+    """Validate a URL and return (hostname, a vetted public IP, port), or raise UrlError."""
     parts = urlsplit(url)
     if parts.scheme not in ("http", "https") or not parts.hostname:
-        return "Please provide a valid URL (including https://)."
+        raise UrlError("Please provide a valid URL (including https://).")
     if parts.username or parts.password:
-        return "URLs with embedded credentials are not allowed."
+        raise UrlError("URLs with embedded credentials are not allowed.")
     try:
         port = parts.port
-    except ValueError:
-        return "Please provide a valid URL."
+        host = parts.hostname.encode("idna").decode("ascii")
+    except (ValueError, UnicodeError):
+        raise UrlError("Please provide a valid URL.") from None
     if port not in (None, 80, 443):
-        return "Only standard ports (80 and 443) are allowed."
+        raise UrlError("Only standard ports (80 and 443) are allowed.")
+    port = port or (443 if parts.scheme == "https" else 80)
     try:
-        infos = socket.getaddrinfo(parts.hostname, port or 443, proto=socket.IPPROTO_TCP)
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
     except (socket.gaierror, UnicodeError):
-        return "Could not resolve the host name."
+        raise UrlError("Could not resolve the host name.") from None
     for info in infos:
         ip = ipaddress.ip_address(info[4][0].split("%")[0])
         if ip.version == 6:
             if ip.sixtofour or ip.teredo:
-                return "Tunnelled IPv6 addresses are not allowed."
+                raise UrlError("Tunnelled IPv6 addresses are not allowed.")
             if ip.ipv4_mapped:
                 ip = ip.ipv4_mapped
         if not ip.is_global:
-            return "URLs pointing to private or internal addresses are not allowed."
-    return None
+            raise UrlError("URLs pointing to private or internal addresses are not allowed.")
+    return host, infos[0][4][0].split("%")[0], port
+
+
+def fetch_text(url: str) -> str:
+    """Fetch a public web page and return it as plain text.
+
+    Every request, including each redirect, connects to the IP address that was just
+    checked, so a redirect or a DNS change can't point the fetch at an internal address.
+    HTTPS certificates are still verified against the real hostname.
+    """
+    with httpx.Client(timeout=FETCH_TIMEOUT, follow_redirects=False, trust_env=False) as client:
+        for _ in range(MAX_REDIRECTS + 1):
+            host, ip, port = resolve_public(url)
+            parts = urlsplit(url)
+            netloc = f"[{ip}]:{port}" if ":" in ip else f"{ip}:{port}"
+            pinned = urlunsplit((parts.scheme, netloc, parts.path or "/", parts.query, ""))
+            default_port = port == (443 if parts.scheme == "https" else 80)
+            headers = {"Host": host if default_port else f"{host}:{port}", "User-Agent": USER_AGENT}
+            extensions = {"sni_hostname": host} if parts.scheme == "https" else {}
+            try:
+                with client.stream("GET", pinned, headers=headers, extensions=extensions) as response:
+                    if response.is_redirect:
+                        url = urljoin(url, response.headers.get("location", ""))
+                        continue
+                    if response.status_code != 200:
+                        raise FetchError(f"The site returned HTTP {response.status_code} instead of the page.")
+                    content_type = response.headers.get("content-type", "")
+                    if content_type and not content_type.startswith(("text/html", "text/plain", "application/xhtml")):
+                        raise FetchError("That URL is not a web page.")
+                    body = bytearray()
+                    for chunk in response.iter_bytes():
+                        body.extend(chunk)
+                        if len(body) > MAX_BYTES:
+                            raise FetchError("The page is larger than 5 MB.")
+                    html = bytes(body).decode(response.encoding or "utf-8", errors="replace")
+            except httpx.HTTPError as e:
+                if "CERTIFICATE" in str(e):
+                    raise FetchError("The site's certificate could not be verified.") from None
+                raise FetchError("Could not fetch the page. Check the URL and try again.") from None
+            converter = html2text.HTML2Text()
+            converter.ignore_images = True
+            converter.body_width = 0
+            return converter.handle(html)
+    raise FetchError("The page redirected too many times.")
 
 
 def friendly_error(e: Exception) -> str:
     if isinstance(e, NoContentError):
         return "No readable content was found at this URL."
+    if isinstance(e, (UrlError, FetchError)):
+        return str(e)
     if isinstance(e, genai_errors.APIError):
         message = (e.message or "").lower()
         if e.code == 400 and "api key" in message:
@@ -76,10 +134,6 @@ def friendly_error(e: Exception) -> str:
         if e.code == 429:
             return "Gemini rate limit or quota exceeded."
         return f"Gemini returned an error (HTTP {e.code})."
-    if isinstance(e, requests.RequestException):
-        return "Could not fetch the page. Check the URL and try again."
-    if isinstance(e, ValueError) and "Error fetching page" in str(e):
-        return "The site returned an error instead of the page."
     return f"Unexpected error ({type(e).__name__})."
 
 
@@ -123,16 +177,11 @@ elif not model:
     st.error("Please provide a Gemini model name.")
 elif not url:
     st.error("Please provide a URL.")
-elif url_error := check_public_url(url):
-    st.error(url_error)
 else:
     try:
         with st.spinner("Fetching content and generating summary...", show_time=True):
             llm = GoogleGenAI(model=model, api_key=google_api_key)
-            documents = SimpleWebPageReader(
-                html_to_text=True, timeout=FETCH_TIMEOUT, fail_on_error=True
-            ).load_data([url])
-            text = documents[0].text.strip() if documents else ""
+            text = fetch_text(url).strip()
             if not text:
                 raise NoContentError()
 

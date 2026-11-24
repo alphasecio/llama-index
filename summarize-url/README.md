@@ -4,7 +4,7 @@ A Streamlit app for summarizing web pages using [LlamaIndex](https://www.llamain
 ![summarize-url](./summarize-url.png)
 
 ## How it works
-1. The page is fetched and converted to text with LlamaIndex's `SimpleWebPageReader`.
+1. The page is fetched and converted to text with `html2text`. Each request, including redirects, is pinned to an address that has been checked as public.
 2. The text is loaded into a `SummaryIndex`.
 3. A Gemini model produces a 200-250 word summary using the `tree_summarize` response mode.
 
@@ -15,7 +15,7 @@ All settings are optional environment variables.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GEMINI_MODEL` | `gemini-3.7-flash` | Default Gemini model (editable in the sidebar) |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Default Gemini model (editable in the sidebar) |
 | `MAX_CHARS` | `60000` | Maximum characters of page text sent for summarization |
 
 ## Run and deploy
@@ -25,6 +25,6 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-For a detailed guide, see [this](https://alphasec.io/blinkist-for-urls-with-llama-index-and-openai) post. To deploy on [Railway](https://railway.com?referralCode=alphasec) using a one-click template, click the button below.
+For a detailed guide, see [this](https://alphasec.io/blinkist-for-urls-with-llamaindex-and-openai/) post. To deploy on [Railway](https://railway.com?referralCode=alphasec) using a one-click template, click the button below.
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/GpZ0J4?referralCode=alphasec)

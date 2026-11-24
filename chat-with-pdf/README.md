@@ -15,7 +15,7 @@ All settings are optional environment variables.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OPENAI_MODEL` | `gpt-5.4-mini` | Default chat model (editable in the sidebar) |
+| `OPENAI_MODEL` | `gpt-6-luna` | Default chat model (editable in the sidebar) |
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | Embedding model |
 | `LLAMA_PARSE_TIER` | `cost_effective` | Default LlamaParse tier (editable in the sidebar) |
 | `MAX_PAGES` | `50` | Maximum pages parsed per PDF |

@@ -1,5 +1,5 @@
-streamlit==1.64.0
-llama-cloud==2.16.0
-llama-index-core==0.14.25
-llama-index-llms-openai==0.8.1
-llama-index-embeddings-openai==0.7.0
+streamlit==1.67.0
+llama-cloud==2.19.0
+llama-index-core==0.14.26
+llama-index-llms-openai==0.9.0
+llama-index-embeddings-openai==0.8.0
