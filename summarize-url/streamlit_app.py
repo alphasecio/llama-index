@@ -133,6 +133,8 @@ def friendly_error(e: Exception) -> str:
             return "The Gemini model was not found."
         if e.code == 429:
             return "Gemini rate limit or quota exceeded."
+        if e.code in (500, 503):
+            return "Gemini is busy right now. Try again in a minute, or pick another model in the sidebar."
         return f"Gemini returned an error (HTTP {e.code})."
     return f"Unexpected error ({type(e).__name__})."
 
